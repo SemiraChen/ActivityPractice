@@ -4,10 +4,10 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -58,7 +58,7 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
     @BindView(R.id.iat_upload_userwords)
     Button iatUploadUserwords;
 
-    private static String TAG = SpeechRecognitionActivity.class.getSimpleName();
+    private static String TAG = "CSYLALA";
     // 语音听写对象
     private SpeechRecognizer mIat;
     // 语音听写UI
@@ -74,6 +74,7 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
     private Toast mToast;
 
     private int ret = 0;
+    private static final int AUDIO_RECORD = 0;//申请打电话权限的请求码,≥0即可
 
 
     @Override
@@ -83,6 +84,41 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
         ButterKnife.bind(this);
         requestPermissions();
         initLayout();
+
+    }
+
+    private void requestPermissions() {
+        //检测是否有拨打电话的权限
+        int checkSelfPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
+        if (checkSelfPermission == PackageManager.PERMISSION_GRANTED) {
+            init();
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_RECORD);//动态申请打电话权限
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case AUDIO_RECORD:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    init();
+                } else {
+                    Toast.makeText(this, "用户未允许打电话权限", Toast.LENGTH_SHORT).show();
+//                    boolean b = shouldShowRequestPermissionRationale(Manifest.permission.CALL_PHONE);
+//                    if(!b) {
+//                        //用户没同意授权,还不让下次继续提醒授权了,这是比较糟糕的情况
+//                        Toast.makeText(this,"用户勾选了下次不再提醒选项", Toast.LENGTH_SHORT).show();
+//                    }
+                }
+            default:
+                break;
+        }
+    }
+
+    private void init() {
 
         // 初始化识别无UI识别对象
         // 使用SpeechRecognizer对象，可根据回调消息自定义界面；
@@ -95,35 +131,6 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
         mSharedPreferences = getSharedPreferences("语音识别",
                 Activity.MODE_PRIVATE);
         mToast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
-    }
-
-    private void requestPermissions() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                int permission = ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
-                if (permission != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]
-                            {Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    Manifest.permission.LOCATION_HARDWARE, Manifest.permission.READ_PHONE_STATE,
-                                    Manifest.permission.WRITE_SETTINGS, Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_CONTACTS}, 0x0010);
-                }
-
-                if (permission != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(this, new String[]{
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION}, 0x0010);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
