@@ -3,4 +3,7 @@
     <string name="app_name">ActivityPractice</string>
     <string name="stringValue1">我是A</string>
     <string name="stringValue2">我是语音识别</string>
+
+
+    <string name="app_id">5b4850ed</string>
 </resources>

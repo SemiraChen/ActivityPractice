@@ -20,6 +20,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:name=".SpeechApp"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -36,7 +37,7 @@
         <!-- 移动统计分析 -->
         <meta-data
             android:name="IFLYTEK_APPKEY"
-            android:value="&apos;5b4850ed&apos;"/>
+            android:value="5b4850ed"/>
         <meta-data
             android:name="IFLYTEK_CHANNEL"
             android:value="ActivityPractivity_Android"/>
