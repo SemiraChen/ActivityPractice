@@ -3,7 +3,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.csy.activitypractice"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -19,6 +19,7 @@ android {
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
+            res.srcDirs = ['src/main/res', 'src/main/res/anim']
         }
     }
 }
@@ -36,4 +37,7 @@ dependencies {
     implementation 'com.android.support:design:27.1.0'
     implementation files('libs/Sunflower.jar')
     implementation files('libs/Msc.jar')
+
+    //录音波浪动画
+    implementation 'com.github.Jay-Goo:WaveLineView:v1.0.3'
 }
