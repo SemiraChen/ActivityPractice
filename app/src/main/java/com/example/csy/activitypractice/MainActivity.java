@@ -5,6 +5,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -18,17 +21,20 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.yalantis.jellytoolbar.listener.JellyListener;
+import com.yalantis.jellytoolbar.widget.JellyToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * @author CSY
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     //     @BindView(R.id.Chart)
     BarChart qualityChart;
@@ -37,6 +43,20 @@ public class MainActivity extends AppCompatActivity {
     TextView tvName;
     @BindView(R.id.tv_title)
     TextView tvTitle;
+    @BindView(R.id.toolbar)
+    JellyToolbar toolbar;
+    private AppCompatEditText editText;
+    private JellyListener jellyListener = new JellyListener() {
+        @Override
+        public void onCancelIconClicked() {
+            if (TextUtils.isEmpty(editText.getText())) {
+                toolbar.collapse();
+            } else {
+                editText.getText().clear();
+            }
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +65,15 @@ public class MainActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        editText = (AppCompatEditText) LayoutInflater.from(this).inflate(R.layout.edit_text, null);
+        toolbar.setJellyListener(jellyListener);
+        toolbar.getToolbar().setPadding(0, getStatusBarHeight(), 0, 0);
+
+        editText = (AppCompatEditText) LayoutInflater.from(this).inflate(R.layout.edit_text, null);
+        editText.setBackgroundResource(R.color.colorTransparent);
+
+
 //        setA(qualityChart);
 //        setAttributes(qualityChart);
         tvName.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +93,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    @OnClick(R.id.tv_bezier)
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_bezier:
+                Intent intent = new Intent(MainActivity.this, BezierActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
+        }
+    }
 
     /**
      * 设置图标交互属性

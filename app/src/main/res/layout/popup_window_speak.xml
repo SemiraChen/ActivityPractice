@@ -3,7 +3,7 @@
                                              xmlns:app="http://schemas.android.com/apk/res-auto"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             android:background="#668B8B">
+                                             android:background="#708090">
 
     <ImageView
         android:id="@+id/btn_close"
@@ -23,11 +23,13 @@
         android:layout_height="20dp"
         android:gravity="center"
         android:text="请说出你想输入的地址"
+        android:textColor="#ffffff"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_close"/>
 
-    <jaygoo.widget.wlv.WaveLineView
+    <com.example.csy.activitypractice.WaveLineView
         android:id="@+id/waveLineView"
         android:layout_width="match_parent"
         android:layout_height="120dp"
@@ -35,19 +37,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_tips"
-        app:wlvBackgroundColor="#668B8B"
+        app:wlvBackgroundColor="#708090"
         app:wlvMoveSpeed="290"/>
 
-
-    <ImageButton
-        android:id="@+id/btn_speak"
+    <LinearLayout
+        android:id="@+id/lly_speak"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:layout_marginBottom="8dp"
         android:layout_marginTop="8dp"
-        android:contentDescription="这是关闭按钮"
+        android:background="@drawable/lly_click_color"
         android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <ImageView
+        android:id="@+id/img_speak"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
         android:src="@drawable/vector_drawable_speak"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>

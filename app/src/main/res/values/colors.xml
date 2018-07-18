@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="llyPrimary">#778899</color>
+    <color name="llyPressed">#4e657c</color>
+
+
+    <!--toolbar-->
+    <color name="colorPrimary">#7e6fe2</color>
+    <color name="colorPrimaryDark">#8a53cf</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorTransparent">#00ffffff</color>
+    <color name="colorStart">#cb5ed9</color>
+    <color name="colorEnd">#8463d4</color>
 </resources>

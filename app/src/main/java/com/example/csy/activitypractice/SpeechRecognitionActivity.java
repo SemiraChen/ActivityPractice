@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -38,7 +37,6 @@ import java.util.LinkedHashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import jaygoo.widget.wlv.WaveLineView;
 
 public class SpeechRecognitionActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -53,13 +51,14 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
     Button iatCancel;
     @BindView(R.id.parent)
     LinearLayout parent;
-    ImageView btnClose;
-    TextView tvTips;
-    ImageButton btnSpeak;
+    private ImageView btnClose;
+    private TextView tvTips;
+    private LinearLayout llySpeak;
+    private ImageView imgSpeak;
 
-    WaveLineView waveLineView;
-    PopupWindow popWnd;
-    View contentView = null;
+    private WaveLineView waveLineView;
+    private PopupWindow popWnd = null;
+    private View contentView = null;
     private static String TAG = "CSYLALA";
     // 语音听写对象
     private SpeechRecognizer mIat;
@@ -103,11 +102,11 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
                     init();
                 } else {
                     Toast.makeText(this, "用户未允许打电话权限", Toast.LENGTH_SHORT).show();
-//                    boolean b = shouldShowRequestPermissionRationale(Manifest.permission.CALL_PHONE);
-//                    if(!b) {
-//                        //用户没同意授权,还不让下次继续提醒授权了,这是比较糟糕的情况
-//                        Toast.makeText(this,"用户勾选了下次不再提醒选项", Toast.LENGTH_SHORT).show();
-//                    }
+                    boolean b = shouldShowRequestPermissionRationale(Manifest.permission.CALL_PHONE);
+                    if(!b) {
+                        //用户没同意授权,还不让下次继续提醒授权了,这是比较糟糕的情况
+                        Toast.makeText(this,"用户勾选了下次不再提醒选项", Toast.LENGTH_SHORT).show();
+                    }
                 }
             default:
                 break;
@@ -161,13 +160,10 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
 
         @Override
         public void onError(SpeechError error) {
-            // Tips：
             // 错误码：10118(您没有说话)，可能是录音机权限被禁，需要提示用户打开应用的录音权限。
-            if (error.getErrorCode() == 14002) {
-                showTip(error.getPlainDescription(true) + "\n请确认是否已开通翻译功能");
-            } else {
-                showTip(error.getPlainDescription(true));
-                tvTips.setText("好像没有听清您说话呢");
+            showTip(error.getPlainDescription(true));
+            if (error.getErrorCode() == 10118) {
+                noContent();
             }
         }
 
@@ -201,6 +197,17 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
         }
     };
 
+    //没有说话
+    private void noContent() {
+
+        if (waveLineView.isRunning()) {
+            waveLineView.stopAnim();
+        }
+        tvTips.setText("好像没有听清您说话呢");
+        imgSpeak.setVisibility(View.VISIBLE);
+        llySpeak.setVisibility(View.VISIBLE);
+    }
+
 
     private void printResult(RecognizerResult results) {
         String text = JsonParser.parseIatResult(results.getResultString());
@@ -223,7 +230,7 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
             iatText.setSelection(iatText.length());
             closePopWindow();
         } else {
-            tvTips.setText("好像没有听清您说话呢");
+            noContent();
         }
     }
 
@@ -273,25 +280,30 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
     }
 
     private void showPopupWindow() {
-        if (contentView == null) {
-            contentView = LayoutInflater.from(SpeechRecognitionActivity.this).inflate(R.layout.popup_window_speak, null);
-        }
         if (popWnd == null) {
+            if (contentView == null) {
+                contentView = LayoutInflater.from(SpeechRecognitionActivity.this).inflate(R.layout.popup_window_speak, null);
+            }
             popWnd = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 600);
             popWnd.setContentView(contentView);
+            popWnd.setOutsideTouchable(true);
+            popWnd.setFocusable(true);
+            popWnd.setOutsideTouchable(true);
             waveLineView = contentView.findViewById(R.id.waveLineView);
             btnClose = contentView.findViewById(R.id.btn_close);
-            btnSpeak = contentView.findViewById(R.id.btn_speak);
+            llySpeak = contentView.findViewById(R.id.lly_speak);
+            imgSpeak = contentView.findViewById(R.id.img_speak);
             tvTips = contentView.findViewById(R.id.tv_tips);
         }
         popWnd.setAnimationStyle(R.style.mypopwindow_anim_style);
         popWnd.showAtLocation(parent, Gravity.BOTTOM, 0, 0);
-        Log.v(TAG, "我进来了");
+
+        if (waveLineView.isRunning()) {
+            waveLineView.stopAnim();
+        }
         waveLineView.startAnim();
-        // popWnd.setOutsideTouchable(true);
 
-
-        btnSpeak.setOnClickListener(new View.OnClickListener() {
+        llySpeak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startListen();
@@ -303,7 +315,6 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
                 closePopWindow();
             }
         });
-
         popWnd.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
@@ -313,9 +324,11 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
     }
 
     private void closePopWindow() {
+        imgSpeak.setVisibility(View.GONE);
+        llySpeak.setVisibility(View.GONE);
         popWnd.dismiss();
         waveLineView.stopAnim();
-        mIat.cancel();//取消听写
+        mIat.stopListening();//取消听写
     }
 
     /**
@@ -357,6 +370,10 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
 
     @Override
     protected void onResume() {
+
+        // 开放统计 移动数据统计分析
+        FlowerCollector.onResume(SpeechRecognitionActivity.this);
+        FlowerCollector.onPageStart(TAG);
         super.onResume();
         if (waveLineView != null) {
             waveLineView.onResume();
@@ -365,6 +382,9 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
 
     @Override
     protected void onPause() {
+        // 开放统计 移动数据统计分析
+        FlowerCollector.onResume(SpeechRecognitionActivity.this);
+        FlowerCollector.onPageStart(TAG);
         super.onPause();
         if (waveLineView != null) {
             waveLineView.onPause();
@@ -376,6 +396,11 @@ public class SpeechRecognitionActivity extends AppCompatActivity implements View
         super.onDestroy();
         if (waveLineView != null) {
             waveLineView.release();
+        }
+        if (null != mIat) {
+            // 退出时释放连接
+            mIat.cancel();
+            mIat.destroy();
         }
     }
 }
